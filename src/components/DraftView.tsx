@@ -76,7 +76,7 @@ export async function DraftView({
       </div>
 
       {draft.notes && (
-        <p className="mt-4 rounded-lg border border-[color:var(--border-soft)] bg-[color:var(--bg-elev)]/50 px-3 py-2 text-xs italic text-muted">
+        <p className="mt-4 rounded-lg border border-[color:var(--border-soft)] bg-bg-elev/50 px-3 py-2 text-xs italic text-muted">
           &ldquo;{draft.notes}&rdquo;
         </p>
       )}
@@ -112,7 +112,7 @@ function SideBlock({
       : "bg-[linear-gradient(180deg,rgba(240,110,91,0.05),transparent_40%)]";
 
   return (
-    <div className={`rounded-xl border ${sideRing} ${sideGlow} bg-[color:var(--bg-elev)]/40 p-4`}>
+    <div className={`rounded-xl border ${sideRing} ${sideGlow} bg-bg-elev/40 p-4`}>
       <div className={`text-[11px] font-semibold uppercase tracking-[0.1em] ${sideColor}`}>
         {side} side <span className="text-muted">— {tag}</span>
       </div>
@@ -139,7 +139,7 @@ function SideBlock({
           {data.bans.map((b, i) => (
             <span
               key={i}
-              className={`rounded-md border border-[color:var(--border-soft)] bg-[color:var(--bg-elev)]/60 px-2 py-1 text-[11px] ${
+              className={`rounded-md border border-[color:var(--border-soft)] bg-bg-elev/60 px-2 py-1 text-[11px] ${
                 b?.champion ? "text-text" : "text-muted"
               }`}
             >

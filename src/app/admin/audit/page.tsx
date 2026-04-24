@@ -71,7 +71,7 @@ export default async function AuditPage() {
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.id} className="border-b border-[color:var(--border-soft)]/60 align-top last:border-0">
+                <tr key={r.id} className="border-b border-border-soft/60 align-top last:border-0">
                   <td className="whitespace-nowrap px-4 py-2.5 tabular-nums text-muted" suppressHydrationWarning>{fmt(r.created_at)}</td>
                   <td className="whitespace-nowrap px-4 py-2.5 text-text">{r.actor_email ?? "\u2014"}</td>
                   <td className="whitespace-nowrap px-4 py-2.5">

@@ -80,7 +80,7 @@ export function VerdictCard({
       {/* Probability breakdown */}
       <div className="mt-5 overflow-hidden rounded-lg border border-[color:var(--border-soft)]">
         <table className="w-full text-sm">
-          <thead className="bg-[color:var(--bg-elev)]/70 text-[10px] uppercase tracking-[0.1em] text-muted">
+          <thead className="bg-bg-elev/70 text-[10px] uppercase tracking-[0.1em] text-muted">
             <tr>
               <th className="px-3 py-2 text-left font-semibold">Win probability</th>
               <th className="px-3 py-2 text-right font-semibold">{teamATag}</th>
@@ -113,7 +113,7 @@ export function VerdictCard({
           </span>
         </div>
       ) : delta !== null && delta !== undefined ? (
-        <div className="mt-4 flex items-center justify-between rounded-lg border border-[color:var(--border-soft)] bg-[color:var(--bg-elev)]/60 px-3 py-2.5 text-sm">
+        <div className="mt-4 flex items-center justify-between rounded-lg border border-[color:var(--border-soft)] bg-bg-elev/60 px-3 py-2.5 text-sm">
           <span className="text-muted">Model edge vs market</span>
           <span className="tabular-nums">
             {valueSide === "even" ? (

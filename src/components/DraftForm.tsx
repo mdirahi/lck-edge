@@ -208,7 +208,7 @@ function SideColumn({
   const sideRing = side === "blue" ? "border-accent/30" : "border-bad/30";
 
   return (
-    <div className={`rounded-xl border ${sideRing} bg-[color:var(--bg-elev)]/40 p-4`}>
+    <div className={`rounded-xl border ${sideRing} bg-bg-elev/40 p-4`}>
       <div className={`text-[11px] font-semibold uppercase tracking-[0.1em] ${sideColor}`}>
         {side} side <span className="text-muted">— {tag}</span>
       </div>

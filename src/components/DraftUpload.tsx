@@ -61,7 +61,7 @@ export function DraftUpload({ onApply }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-[color:var(--border-soft)] bg-[color:var(--bg-elev)]/40 p-4">
+    <div className="rounded-xl border border-[color:var(--border-soft)] bg-bg-elev/40 p-4">
       <div className="flex items-baseline justify-between gap-2">
         <h4 className="section-eyebrow">Recognize draft from screenshot</h4>
         <span className="text-[11px] text-muted">powered by Claude vision</span>
@@ -72,7 +72,7 @@ export function DraftUpload({ onApply }: Props) {
           type="file"
           accept={ACCEPTED_TYPES.join(",")}
           onChange={onFileChange}
-          className="text-xs text-muted file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-border file:bg-[color:var(--bg-elev)]/70 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-text file:transition-colors hover:file:border-accent/60 hover:file:bg-[color:var(--panel-lift)]"
+          className="text-xs text-muted file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-border file:bg-bg-elev/70 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-text file:transition-colors hover:file:border-accent/60 hover:file:bg-[color:var(--panel-lift)]"
         />
         <button
           type="button"

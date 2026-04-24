@@ -78,7 +78,7 @@ html {
   }
   /* Nested surface inside a card (stat tile, preview box, etc.) */
   .card-inset {
-    @apply rounded-lg border border-[color:var(--border-soft)] bg-[color:var(--bg-elev)]/60 p-3;
+    @apply rounded-lg border border-[color:var(--border-soft)] bg-bg-elev/60 p-3;
   }
   /* Hoverable list card (match list tiles) */
   .card-link {
@@ -115,7 +115,7 @@ html {
     @apply block text-[11px] font-medium uppercase tracking-wide text-muted;
   }
   .input, .select {
-    @apply w-full rounded-lg border border-border bg-[color:var(--bg-elev)]/70 px-3 py-2 text-sm text-text
+    @apply w-full rounded-lg border border-border bg-bg-elev/70 px-3 py-2 text-sm text-text
            transition-colors duration-150
            placeholder:text-muted/70
            hover:border-[color:#2f3547]
@@ -129,7 +129,7 @@ html {
   .badge {
     @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wide;
   }
-  .badge-muted  { @apply badge border-border bg-[color:var(--bg-elev)]/60 text-muted; }
+  .badge-muted  { @apply badge border-border bg-bg-elev/60 text-muted; }
   .badge-accent { @apply badge border-accent/40 bg-accent/10 text-accent; }
   .badge-good   { @apply badge border-good/40 bg-good/10 text-good; }
   .badge-warn   { @apply badge border-warn/40 bg-warn/10 text-warn; }
