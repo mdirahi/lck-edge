@@ -17,14 +17,15 @@ interface Row {
 }
 
 function fmt(iso: string) {
+  // America/New_York auto-handles EST vs EDT; label as "ET" year-round.
   return new Date(iso).toLocaleString("en-US", {
-    timeZone: "Asia/Seoul",
+    timeZone: "America/New_York",
     month: "short",
     day: "numeric",
-    hour: "2-digit",
+    hour: "numeric",
     minute: "2-digit",
-    hour12: false,
-  }) + " KST";
+    hour12: true,
+  }) + " ET";
 }
 
 export default async function AuditPage() {

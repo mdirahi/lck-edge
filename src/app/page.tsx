@@ -3,16 +3,18 @@ import { createServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-function formatKST(iso: string): string {
+function formatKickoff(iso: string): string {
   const d = new Date(iso);
+  // America/New_York auto-handles EST vs EDT; we label both as "ET"
+  // so the suffix stays accurate year-round.
   return d.toLocaleString("en-US", {
-    timeZone: "Asia/Seoul",
+    timeZone: "America/New_York",
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-    hour12: false,
-  }) + " KST";
+    hour12: true,
+  }) + " ET";
 }
 
 export default async function HomePage() {
@@ -125,7 +127,7 @@ function MatchCard({ m, showWinner }: { m: any; showWinner?: boolean }) {
           <div className="text-xs text-muted">BO{m.best_of}</div>
         </div>
         <div className="mt-1 flex items-center justify-between text-xs text-muted">
-          <span>{formatKST(m.start_at)}</span>
+          <span>{formatKickoff(m.start_at)}</span>
           <span className="rounded-full border border-border px-2 py-0.5">{m.status}</span>
         </div>
       </Link>

@@ -14,16 +14,17 @@ export const dynamic = "force-dynamic";
 
 interface PageProps { params: Promise<{ id: string }> }
 
-function formatKST(iso: string): string {
+function formatKickoff(iso: string): string {
+  // America/New_York auto-handles EST vs EDT; label as "ET" year-round.
   return new Date(iso).toLocaleString("en-US", {
-    timeZone: "Asia/Seoul",
+    timeZone: "America/New_York",
     weekday: "short",
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-    hour12: false,
-  }) + " KST";
+    hour12: true,
+  }) + " ET";
 }
 
 export default async function MatchPage({ params }: PageProps) {
@@ -116,7 +117,7 @@ export default async function MatchPage({ params }: PageProps) {
             {teamA.name} <span className="text-muted">vs</span> {teamB.name}
           </div>
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-            <span>{formatKST(match.start_at)}</span>
+            <span>{formatKickoff(match.start_at)}</span>
             <span>&middot; BO{match.best_of}</span>
             <span>&middot; {match.split}</span>
             {patch && <span>&middot; Patch {patch.version}</span>}
