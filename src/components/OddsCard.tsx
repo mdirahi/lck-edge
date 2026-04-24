@@ -58,28 +58,29 @@ export function OddsCard({
   }
 
   return (
-    <div className="rounded-lg border border-border bg-panel p-5">
-      <div className="flex items-baseline justify-between">
-        <h3 className="text-lg font-semibold">Odds</h3>
+    <div className="card">
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="section-title">Odds</h3>
         <span className="text-xs text-muted">
           Paste your line. Enter once per new price you see.
         </span>
       </div>
 
       {(latestNovigA !== undefined && latestNovigB !== undefined) && (
-        <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+        <div className="mt-4 grid grid-cols-2 gap-3">
           <SnapshotTile tag={teamATag} novig={latestNovigA} />
           <SnapshotTile tag={teamBTag} novig={latestNovigB} />
         </div>
       )}
       {latestSource && (
         <p className="mt-2 text-[11px] text-muted" suppressHydrationWarning>
-          Last: {latestSource}{latestCapturedAt ? ` \u00b7 ${new Date(latestCapturedAt).toLocaleString()}` : ""}
+          Last: {latestSource}
+          {latestCapturedAt ? ` · ${formatCapturedAt(latestCapturedAt)}` : ""}
         </p>
       )}
 
-      <form onSubmit={onSubmit} className="mt-4 space-y-3">
-        <div className="grid grid-cols-3 gap-2">
+      <form onSubmit={onSubmit} className="mt-5 space-y-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <LabeledSelect
             label="Format"
             value={format}
@@ -118,7 +119,7 @@ export function OddsCard({
         />
 
         {preview?.ok && (
-          <div className="grid grid-cols-2 gap-3 rounded border border-border bg-bg/40 p-3 text-sm">
+          <div className="card-inset grid grid-cols-2 gap-3 text-sm">
             <PreviewLine tag={teamATag} implied={preview.result.teamAImpliedProb} novig={preview.result.novigA} />
             <PreviewLine tag={teamBTag} implied={preview.result.teamBImpliedProb} novig={preview.result.novigB} />
             <div className="col-span-2 text-xs text-muted">
@@ -128,19 +129,23 @@ export function OddsCard({
         )}
 
         {preview?.ok === false && teamA && teamB && (
-          <div className="rounded border border-warn/40 bg-warn/10 p-2 text-xs text-warn">
+          <div className="rounded-lg border border-warn/40 bg-warn/10 px-3 py-2 text-xs text-warn">
             {preview.error}
           </div>
         )}
 
-        {error && <div className="rounded border border-bad/40 bg-bad/10 p-2 text-xs text-bad">{error}</div>}
+        {error && (
+          <div className="rounded-lg border border-bad/40 bg-bad/10 px-3 py-2 text-xs text-bad">
+            {error}
+          </div>
+        )}
 
         <button
           type="submit"
           disabled={pending || !preview?.ok}
-          className="rounded bg-accent px-4 py-2 text-sm font-medium text-bg hover:brightness-110 disabled:opacity-50"
+          className="btn-primary w-full sm:w-auto"
         >
-          {pending ? "Saving\u2026" : "Save & re-score"}
+          {pending ? "Saving…" : "Save & re-score"}
         </button>
       </form>
     </div>
@@ -203,12 +208,11 @@ function LabeledInput({
   inputMode?: "decimal" | "text";
   invalid?: boolean;
 }) {
-  const borderClass = invalid ? "border-warn" : "border-border";
   return (
-    <label className="block text-xs text-muted">
-      <span>{label}</span>
+    <label className="block space-y-1.5">
+      <span className="field-label">{label}</span>
       <input
-        className={`mt-1 w-full rounded border ${borderClass} bg-bg/60 px-2 py-1.5 text-sm text-text`}
+        className={`input ${invalid ? "input-invalid" : ""}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
@@ -225,10 +229,10 @@ function LabeledSelect({
   options: { v: string; l: string }[];
 }) {
   return (
-    <label className="block text-xs text-muted">
-      <span>{label}</span>
+    <label className="block space-y-1.5">
+      <span className="field-label">{label}</span>
       <select
-        className="mt-1 w-full rounded border border-border bg-bg/60 px-2 py-1.5 text-sm text-text"
+        className="select"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >
@@ -243,18 +247,32 @@ function LabeledSelect({
 function PreviewLine({ tag, implied, novig }: { tag: string; implied: number; novig: number }) {
   return (
     <div>
-      <div className="text-xs text-muted">{tag}</div>
-      <div className="font-medium">{formatProb(novig)} <span className="text-xs text-muted">fair</span></div>
-      <div className="text-[11px] text-muted">raw {formatProb(implied)}</div>
+      <div className="stat-label">{tag}</div>
+      <div className="mt-0.5 text-base font-semibold text-text tabular-nums">
+        {formatProb(novig)} <span className="text-xs font-normal text-muted">fair</span>
+      </div>
+      <div className="text-[11px] text-muted tabular-nums">raw {formatProb(implied)}</div>
     </div>
   );
 }
 
 function SnapshotTile({ tag, novig }: { tag: string; novig: number }) {
   return (
-    <div className="rounded border border-border bg-bg/40 px-3 py-2">
-      <div className="text-xs text-muted">{tag} fair</div>
-      <div className="text-xl font-semibold">{formatProb(novig)}</div>
+    <div className="card-inset">
+      <div className="stat-label">{tag} fair</div>
+      <div className="mt-1 text-2xl font-semibold text-text tabular-nums">{formatProb(novig)}</div>
     </div>
   );
+}
+
+function formatCapturedAt(iso: string): string {
+  // America/New_York auto-handles EST vs EDT; label as "ET" year-round.
+  return new Date(iso).toLocaleString("en-US", {
+    timeZone: "America/New_York",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }) + " ET";
 }

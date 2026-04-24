@@ -130,13 +130,13 @@ export function DraftForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="rounded-lg border border-border bg-panel p-5">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">Enter draft</h3>
-        <label className="text-xs text-muted">
-          Blue side:{" "}
+    <form onSubmit={onSubmit} className="card">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h3 className="section-eyebrow">Enter draft</h3>
+        <label className="flex items-center gap-2 text-xs text-muted">
+          <span>Blue side</span>
           <select
-            className="ml-1 rounded border border-border bg-bg/60 px-2 py-1 text-sm text-text"
+            className="select !w-auto py-1.5"
             value={blueTeamId}
             onChange={(e) => setBlueTeamId(e.target.value)}
           >
@@ -146,11 +146,11 @@ export function DraftForm({
         </label>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-5">
         <DraftUpload onApply={applyRecognition} />
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
         <SideColumn
           side="blue"
           tag={blueTag}
@@ -167,10 +167,10 @@ export function DraftForm({
         />
       </div>
 
-      <label className="mt-4 block text-xs text-muted">
-        Notes (optional)
+      <label className="mt-5 block space-y-1.5">
+        <span className="field-label">Notes (optional)</span>
         <input
-          className="mt-1 w-full rounded border border-border bg-bg/60 px-2 py-1.5 text-sm text-text"
+          className="input"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="e.g. Kiin swap top, Chovy flex pick on mid"
@@ -178,22 +178,18 @@ export function DraftForm({
       </label>
 
       {error && (
-        <div className="mt-3 rounded border border-bad/40 bg-bad/10 p-2 text-xs text-bad">
+        <div className="mt-4 rounded-lg border border-bad/40 bg-bad/10 px-3 py-2 text-xs text-bad">
           {error}
         </div>
       )}
       {success && (
-        <div className="mt-3 rounded border border-good/40 bg-good/10 p-2 text-xs text-good">
+        <div className="mt-4 rounded-lg border border-good/40 bg-good/10 px-3 py-2 text-xs text-good">
           {success}
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="mt-3 rounded bg-accent px-4 py-2 text-sm font-medium text-bg hover:brightness-110 disabled:opacity-50"
-      >
-        {pending ? "Saving\u2026" : "Save draft"}
+      <button type="submit" disabled={pending} className="btn-primary mt-4">
+        {pending ? "Saving…" : "Save draft"}
       </button>
     </form>
   );
@@ -208,20 +204,23 @@ function SideColumn({
   slots: SlotState;
   onChange: (key: string, championId: string) => void;
 }) {
-  const accent = side === "blue" ? "text-accent" : "text-bad";
-  const ring = side === "blue" ? "border-accent/40" : "border-bad/40";
+  const sideColor = side === "blue" ? "text-accent" : "text-bad";
+  const sideRing = side === "blue" ? "border-accent/30" : "border-bad/30";
+
   return (
-    <div className={`rounded border ${ring} bg-bg/30 p-3`}>
-      <div className={`text-xs font-semibold uppercase tracking-wide ${accent}`}>
-        {side} side {"\u2014"} {tag}
+    <div className={`rounded-xl border ${sideRing} bg-[color:var(--bg-elev)]/40 p-4`}>
+      <div className={`text-[11px] font-semibold uppercase tracking-[0.1em] ${sideColor}`}>
+        {side} side <span className="text-muted">— {tag}</span>
       </div>
 
-      <div className="mt-2 space-y-1.5">
+      <div className="mt-3 space-y-2">
         {ROLES.map((role, i) => {
           const key = slotKey(side, "pick", i);
           return (
-            <div key={key} className="flex items-center gap-2">
-              <span className="inline-block w-12 text-xs text-muted">{role}</span>
+            <div key={key} className="flex items-center gap-2.5">
+              <span className="inline-block w-12 text-[11px] font-semibold uppercase tracking-wider text-muted">
+                {role}
+              </span>
               <ChampionSelect
                 value={slots[key]?.champion_id ?? ""}
                 champions={champions}
@@ -233,9 +232,9 @@ function SideColumn({
         })}
       </div>
 
-      <div className="mt-3">
-        <div className="text-[11px] uppercase tracking-wide text-muted">Bans</div>
-        <div className="mt-1 space-y-1">
+      <div className="mt-4">
+        <div className="stat-label">Bans</div>
+        <div className="mt-2 space-y-1.5">
           {[0, 1, 2, 3, 4].map((i) => {
             const key = slotKey(side, "ban", i);
             return (
@@ -270,11 +269,11 @@ function ChampionSelect({
   });
   return (
     <select
-      className="w-full rounded border border-border bg-bg/60 px-2 py-1 text-sm text-text"
+      className="select py-1.5"
       value={value}
       onChange={(e) => onChange(e.target.value)}
     >
-      <option value="">{"\u2013 none \u2013"}</option>
+      <option value="">{"– none –"}</option>
       {sorted.map((c) => (
         <option key={c.id} value={c.id}>
           {c.display_name}

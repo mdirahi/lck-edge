@@ -1,15 +1,15 @@
 import type { PredictionRow, PredictionFactorRow } from "@/lib/types";
 
-const confColors = {
-  low: "border-muted/40 bg-muted/10 text-muted",
-  medium: "border-warn/40 bg-warn/10 text-warn",
-  high: "border-good/40 bg-good/10 text-good",
+const confBadge = {
+  low: "badge-muted",
+  medium: "badge-warn",
+  high: "badge-good",
 } as const;
 
-const recColors = {
-  play: "border-good/40 bg-good/10 text-good",
-  watch: "border-warn/40 bg-warn/10 text-warn",
-  avoid: "border-bad/40 bg-bad/10 text-bad",
+const recBadge = {
+  play: "badge-good",
+  watch: "badge-warn",
+  avoid: "badge-bad",
 } as const;
 
 export function VerdictCard({
@@ -60,39 +60,41 @@ export function VerdictCard({
       : "no lean";
 
   return (
-    <div className="rounded-lg border border-border bg-panel p-5">
+    <div className="card-hero">
       <div className="flex items-baseline justify-between">
-        <h3 className="text-lg font-semibold">Quick verdict</h3>
-        <span className="text-[11px] text-muted">model {prediction.model_version}</span>
+        <h3 className="section-title">Quick verdict</h3>
+        <span className="text-[11px] text-muted tabular-nums">
+          model {prediction.model_version}
+        </span>
       </div>
 
-      {/* Projected scores (0\u2013100) */}
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      {/* Projected scores (0–100) */}
+      <div className="mt-5 grid grid-cols-2 gap-3">
         <ScoreTile tag={teamATag} score={prediction.team_a_score} />
         <ScoreTile tag={teamBTag} score={prediction.team_b_score} />
       </div>
-      <p className="mt-1 text-center text-[11px] text-muted">
-        Projected score out of 100 {"\u2014"} weighted sum of 7 factors
+      <p className="mt-2 text-center text-[11px] text-muted">
+        Projected score out of 100 — weighted sum of 7 factors
       </p>
 
       {/* Probability breakdown */}
-      <div className="mt-4 overflow-hidden rounded border border-border">
+      <div className="mt-5 overflow-hidden rounded-lg border border-[color:var(--border-soft)]">
         <table className="w-full text-sm">
-          <thead className="bg-bg/40 text-[11px] uppercase tracking-wide text-muted">
+          <thead className="bg-[color:var(--bg-elev)]/70 text-[10px] uppercase tracking-[0.1em] text-muted">
             <tr>
-              <th className="px-3 py-1.5 text-left font-medium">Win probability</th>
-              <th className="px-3 py-1.5 text-right font-medium">{teamATag}</th>
-              <th className="px-3 py-1.5 text-right font-medium">{teamBTag}</th>
+              <th className="px-3 py-2 text-left font-semibold">Win probability</th>
+              <th className="px-3 py-2 text-right font-semibold">{teamATag}</th>
+              <th className="px-3 py-2 text-right font-semibold">{teamBTag}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody className="divide-y divide-[color:var(--border-soft)]">
             <ProbRow label="Model" a={modelA} b={modelB} />
             {marketA !== undefined && marketB !== undefined ? (
               <ProbRow label="Market (no-vig)" a={marketA} b={marketB} />
             ) : (
               <tr>
-                <td className="px-3 py-1.5 text-muted">Market (no-vig)</td>
-                <td className="px-3 py-1.5 text-right text-muted" colSpan={2}>
+                <td className="px-3 py-2 text-muted">Market (no-vig)</td>
+                <td className="px-3 py-2 text-right text-muted" colSpan={2}>
                   no odds entered
                 </td>
               </tr>
@@ -104,26 +106,26 @@ export function VerdictCard({
 
       {/* Edge / value side, OR data-starved banner */}
       {dataStarved ? (
-        <div className="mt-3 rounded border border-warn/40 bg-warn/10 px-3 py-2 text-xs">
+        <div className="mt-4 rounded-lg border border-warn/40 bg-warn/10 px-3 py-2.5 text-xs">
           <span className="font-semibold text-warn">No independent signal yet.</span>{" "}
           <span className="text-muted">
             Numbers reflect market odds only. Enter a draft or import recent form data to unlock analysis.
           </span>
         </div>
       ) : delta !== null && delta !== undefined ? (
-        <div className="mt-3 flex items-center justify-between rounded border border-border bg-bg/40 px-3 py-2 text-sm">
+        <div className="mt-4 flex items-center justify-between rounded-lg border border-[color:var(--border-soft)] bg-[color:var(--bg-elev)]/60 px-3 py-2.5 text-sm">
           <span className="text-muted">Model edge vs market</span>
           <span className="tabular-nums">
             {valueSide === "even" ? (
               <span className="text-muted">
-                {"\u2248"} even ({signed(delta * 100)} pts)
+                ≈ even ({signed(delta * 100)} pts)
               </span>
             ) : (
               <>
-                <span className="text-good font-semibold">
+                <span className="font-semibold text-good">
                   {valueSide === "A" ? teamATag : teamBTag}
                 </span>
-                <span className="mx-1 text-muted">value side</span>
+                <span className="mx-1.5 text-muted">value side</span>
                 <span className="font-medium">
                   ({signed(Math.abs(delta) * 100)} pts)
                 </span>
@@ -134,57 +136,57 @@ export function VerdictCard({
       ) : null}
 
       {/* Lean + confidence + recommendation */}
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+      <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
         <span className="text-muted">Lean:</span>
-        <span className="font-semibold">{leanLabel}</span>
-        <Badge className={confColors[prediction.confidence]}>
+        <span className="text-sm font-semibold text-text">{leanLabel}</span>
+        <span className={confBadge[prediction.confidence]}>
           Confidence: {prediction.confidence}
-        </Badge>
-        <Badge className={recColors[prediction.recommendation]}>
+        </span>
+        <span className={recBadge[prediction.recommendation]}>
           {prediction.recommendation.toUpperCase()}
-        </Badge>
+        </span>
       </div>
 
       {prediction.reasons.length > 0 && (
-        <div className="mt-4">
-          <div className="text-[11px] uppercase tracking-wide text-muted">Why</div>
-          <ul className="mt-1 list-disc pl-5 text-sm">
+        <div className="mt-5 divider-soft pt-4">
+          <div className="section-eyebrow">Why</div>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-text">
             {prediction.reasons.map((r, i) => <li key={i}>{r}</li>)}
           </ul>
-          <p className="mt-1 text-[11px] text-muted">Factor scores are on a 0{"\u2013"}100 scale.</p>
+          <p className="mt-2 text-[11px] text-muted">Factor scores are on a 0–100 scale.</p>
         </div>
       )}
 
       {prediction.risks.length > 0 && (
-        <div className="mt-3">
-          <div className="text-[11px] uppercase tracking-wide text-muted">Risks</div>
-          <ul className="mt-1 list-disc pl-5 text-sm">
+        <div className="mt-4">
+          <div className="section-eyebrow">Risks</div>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-text">
             {prediction.risks.map((r, i) => <li key={i}>{r}</li>)}
           </ul>
         </div>
       )}
 
       {factors.length > 0 && (
-        <details className="mt-4">
-          <summary className="cursor-pointer text-xs text-muted hover:text-text">
+        <details className="mt-5 divider-soft pt-4">
+          <summary className="cursor-pointer select-none text-xs text-muted transition-colors hover:text-text">
             Factor breakdown
           </summary>
-          <table className="mt-2 w-full border-collapse text-xs">
+          <table className="mt-3 w-full border-collapse text-xs">
             <thead>
               <tr className="text-left text-muted">
-                <th className="py-1">Factor</th>
-                <th className="py-1">Weight</th>
-                <th className="py-1 text-right">{teamATag} /100</th>
-                <th className="py-1 text-right">{teamBTag} /100</th>
+                <th className="py-1.5 font-semibold">Factor</th>
+                <th className="py-1.5 font-semibold">Weight</th>
+                <th className="py-1.5 text-right font-semibold">{teamATag} /100</th>
+                <th className="py-1.5 text-right font-semibold">{teamBTag} /100</th>
               </tr>
             </thead>
             <tbody>
               {factors.map((f) => (
-                <tr key={f.id} className="border-t border-border">
-                  <td className="py-1">{f.factor_key.replace(/_/g, " ")}</td>
-                  <td className="py-1">{(f.weight * 100).toFixed(0)}%</td>
-                  <td className="py-1 text-right tabular-nums">{Number(f.team_a_score).toFixed(0)}</td>
-                  <td className="py-1 text-right tabular-nums">{Number(f.team_b_score).toFixed(0)}</td>
+                <tr key={f.id} className="border-t border-[color:var(--border-soft)]">
+                  <td className="py-1.5">{f.factor_key.replace(/_/g, " ")}</td>
+                  <td className="py-1.5 tabular-nums">{(f.weight * 100).toFixed(0)}%</td>
+                  <td className="py-1.5 text-right tabular-nums">{Number(f.team_a_score).toFixed(0)}</td>
+                  <td className="py-1.5 text-right tabular-nums">{Number(f.team_b_score).toFixed(0)}</td>
                 </tr>
               ))}
             </tbody>
@@ -192,7 +194,7 @@ export function VerdictCard({
         </details>
       )}
 
-      <p className="mt-4 text-[11px] text-muted">
+      <p className="mt-5 text-[11px] text-muted">
         Analytical support, not guaranteed betting advice.
       </p>
     </div>
@@ -201,9 +203,9 @@ export function VerdictCard({
 
 function ScoreTile({ tag, score }: { tag: string; score: number }) {
   return (
-    <div className="rounded border border-border bg-bg/40 p-3 text-center">
-      <div className="text-xs text-muted">{tag}</div>
-      <div className="text-2xl font-semibold tabular-nums">
+    <div className="card-inset text-center">
+      <div className="stat-label">{tag}</div>
+      <div className="mt-1 stat-value-lg">
         {Number(score).toFixed(1)}
         <span className="ml-0.5 text-sm font-normal text-muted">/100</span>
       </div>
@@ -216,21 +218,15 @@ function ProbRow({
 }: {
   label: string; a: number; b: number; emphasize?: boolean;
 }) {
-  const cellClass = `px-3 py-1.5 text-right tabular-nums ${emphasize ? "font-semibold" : ""}`;
+  const cellClass = `px-3 py-2 text-right tabular-nums ${emphasize ? "font-semibold text-text" : "text-text"}`;
   const rowClass = emphasize ? "bg-accent/5" : "";
-  const labelClass = `px-3 py-1.5 ${emphasize ? "font-semibold" : "text-muted"}`;
+  const labelClass = `px-3 py-2 ${emphasize ? "font-semibold text-text" : "text-muted"}`;
   return (
     <tr className={rowClass}>
       <td className={labelClass}>{label}</td>
       <td className={cellClass}>{(a * 100).toFixed(1)}%</td>
       <td className={cellClass}>{(b * 100).toFixed(1)}%</td>
     </tr>
-  );
-}
-
-function Badge({ className, children }: { className: string; children: React.ReactNode }) {
-  return (
-    <span className={`rounded-full border px-2 py-0.5 ${className}`}>{children}</span>
   );
 }
 

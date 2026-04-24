@@ -11,7 +11,7 @@ export default async function AdminUsersPage() {
   if (!me) redirect("/login?redirect=/admin/users");
   if (me.role !== "admin") {
     return (
-      <div className="rounded-lg border border-border bg-panel p-5 text-sm text-muted">
+      <div className="card text-sm text-muted">
         Admin access required.
       </div>
     );
@@ -29,26 +29,27 @@ export default async function AdminUsersPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-text">Users</h1>
-        <p className="mt-1 text-xs text-muted">
+        <h1 className="text-3xl font-semibold tracking-tight">Users</h1>
+        <p className="mt-1.5 text-xs text-muted">
           Invite people by email. They can sign in via magic link once invited.
         </p>
       </div>
 
-      <div className="rounded-lg border border-border bg-panel p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">Invite</h2>
-        <div className="mt-3">
+      <div className="card">
+        <h2 className="section-eyebrow">Invite</h2>
+        <div className="mt-4">
           <InviteUserForm />
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-panel p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-          Active users ({users?.length ?? 0})
-        </h2>
-        <div className="mt-3 divide-y divide-border">
+      <div className="card">
+        <div className="flex items-baseline justify-between gap-2">
+          <h2 className="section-eyebrow">Active users</h2>
+          <span className="text-[11px] tabular-nums text-muted">{users?.length ?? 0}</span>
+        </div>
+        <div className="mt-3 divide-y divide-[color:var(--border-soft)]">
           {(users ?? []).map((u) => (
             <UserRow
               key={u.id}
@@ -58,16 +59,17 @@ export default async function AdminUsersPage() {
             />
           ))}
           {(users ?? []).length === 0 && (
-            <div className="py-2 text-sm text-muted">No one has signed in yet.</div>
+            <div className="py-3 text-xs italic text-muted">No one has signed in yet.</div>
           )}
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-panel p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">
-          Pending invites ({pendingInvites.length})
-        </h2>
-        <div className="mt-3 divide-y divide-border">
+      <div className="card">
+        <div className="flex items-baseline justify-between gap-2">
+          <h2 className="section-eyebrow">Pending invites</h2>
+          <span className="text-[11px] tabular-nums text-muted">{pendingInvites.length}</span>
+        </div>
+        <div className="mt-3 divide-y divide-[color:var(--border-soft)]">
           {pendingInvites.map((inv) => (
             <UserRow
               key={inv.email}
@@ -77,7 +79,7 @@ export default async function AdminUsersPage() {
             />
           ))}
           {pendingInvites.length === 0 && (
-            <div className="py-2 text-sm text-muted">No pending invites.</div>
+            <div className="py-3 text-xs italic text-muted">No pending invites.</div>
           )}
         </div>
       </div>

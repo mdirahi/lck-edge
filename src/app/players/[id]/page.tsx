@@ -9,12 +9,18 @@ export default async function PlayerPage({ params }: { params: Promise<{ id: str
   const { data: player } = await sb.from("players").select("*").eq("id", id).single();
   if (!player) return notFound();
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">{player.ign}</h1>
-      <p className="text-sm text-muted">{player.role} {player.real_name ? ` \u00b7 ${player.real_name}` : ""}</p>
-      <p className="text-xs text-muted">
-        Per-player stats populate once you import Oracle&rsquo;s Elixir CSVs into player_game_stats.
-      </p>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-semibold tracking-tight">{player.ign}</h1>
+        <p className="mt-1.5 text-xs text-muted">
+          <span className="font-semibold uppercase tracking-wider">{player.role}</span>
+          {player.real_name ? ` \u00b7 ${player.real_name}` : ""}
+        </p>
+      </div>
+      <div className="card text-xs italic text-muted">
+        Per-player stats populate once you import Oracle&rsquo;s Elixir CSVs into{" "}
+        <code className="font-mono not-italic text-text">player_game_stats</code>.
+      </div>
     </div>
   );
 }

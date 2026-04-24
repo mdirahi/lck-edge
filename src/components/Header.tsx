@@ -5,49 +5,58 @@ export async function Header() {
   const user = await getCurrentUser();
 
   return (
-    <header className="border-b border-border bg-panel/60 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3 text-sm">
-        <Link href="/" className="font-semibold text-text hover:text-accent">
-          LCK Edge
+    <header className="sticky top-0 z-30 border-b border-[color:var(--border-soft)] bg-[color:rgba(10,12,17,0.7)] backdrop-blur-md">
+      <nav className="mx-auto flex max-w-6xl items-center gap-5 px-4 py-3 text-sm">
+        <Link
+          href="/"
+          className="font-semibold tracking-tight text-text transition-colors hover:text-accent"
+        >
+          LCK <span className="text-accent">Edge</span>
         </Link>
-        <span className="text-muted">|</span>
-        <Link href="/" className="text-muted hover:text-text">Matches</Link>
-        <Link href="/draft" className="text-muted hover:text-text">Draft upload</Link>
-        {user?.role === "admin" && (
-          <>
-            <Link href="/admin/users" className="text-muted hover:text-text">Admin</Link>
-            <Link href="/admin/audit" className="text-muted hover:text-text">Audit</Link>
-          </>
-        )}
+
+        <div className="hidden items-center gap-4 sm:flex">
+          <NavLink href="/">Matches</NavLink>
+          <NavLink href="/draft">Draft upload</NavLink>
+          {user?.role === "admin" && (
+            <>
+              <NavLink href="/admin/users">Admin</NavLink>
+              <NavLink href="/admin/audit">Audit</NavLink>
+            </>
+          )}
+        </div>
+
         <div className="ml-auto flex items-center gap-3">
-          <div className="rounded-full border border-border px-3 py-0.5 text-xs text-muted">
-            LCK 2026 Spring
-          </div>
+          <span className="badge-accent">LCK 2026 Spring</span>
           {user ? (
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-muted">
+              <span className="hidden text-muted sm:inline">
                 {user.email}{" "}
                 <span className={user.role === "admin" ? "text-accent" : "text-muted"}>
                   ({user.role})
                 </span>
               </span>
-              <a
-                href="/auth/signout"
-                className="rounded border border-border px-2 py-0.5 text-muted hover:text-text"
-              >
+              <a href="/auth/signout" className="btn-ghost btn-sm">
                 Sign out
               </a>
             </div>
           ) : (
-            <Link
-              href="/login"
-              className="rounded border border-border px-2 py-0.5 text-xs text-muted hover:text-text"
-            >
+            <Link href="/login" className="btn-ghost btn-sm">
               Sign in
             </Link>
           )}
         </div>
       </nav>
     </header>
+  );
+}
+
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="text-muted transition-colors hover:text-text"
+    >
+      {children}
+    </Link>
   );
 }

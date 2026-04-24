@@ -5,46 +5,51 @@ export function TeamOverview({ team, players }: { team: Team; players: Player[] 
   const sorted = [...players].sort((a, b) => roleOrder[a.role] - roleOrder[b.role]);
 
   return (
-    <div className="rounded-lg border border-border bg-panel p-5">
-      <div className="flex items-baseline justify-between">
-        <h3 className="text-xl font-semibold">{team.name}</h3>
-        <span className="text-sm text-muted">{team.tag}</span>
+    <div className="card">
+      <div className="flex items-baseline justify-between gap-2">
+        <h3 className="text-xl font-semibold tracking-tight text-text">{team.name}</h3>
+        <span className="badge-muted">{team.tag}</span>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-        <Stat label="Recent form" value={"\u2013"} />
-        <Stat label="Split record" value={"\u2013"} />
-        <Stat label="Blue-side WR" value={"\u2013"} />
-        <Stat label="Red-side WR" value={"\u2013"} />
+      <div className="mt-5 grid grid-cols-2 gap-2.5">
+        <Stat label="Recent form" value={"–"} />
+        <Stat label="Split record" value={"–"} />
+        <Stat label="Blue-side WR" value={"–"} />
+        <Stat label="Red-side WR" value={"–"} />
       </div>
-      <p className="mt-3 text-xs text-muted">
-        (Recent form data is populated once you import Oracle&rsquo;s Elixir CSVs. See README.)
+      <p className="mt-3 text-[11px] text-muted">
+        Recent-form stats populate once Oracle&rsquo;s Elixir CSVs are imported.
       </p>
 
-      <h4 className="mt-5 text-sm font-semibold uppercase tracking-wide text-muted">Roster</h4>
-      <ul className="mt-2 divide-y divide-border text-sm">
-        {sorted.map((p) => (
-          <li key={p.id} className="flex items-center justify-between py-2">
-            <span>
-              <span className="inline-block w-10 text-xs text-muted">{p.role}</span>
-              <span className="font-medium">{p.ign}</span>
-            </span>
-            {p.real_name && <span className="text-xs text-muted">{p.real_name}</span>}
-          </li>
-        ))}
-        {sorted.length === 0 && (
-          <li className="py-2 text-xs text-muted">No players seeded yet.</li>
+      <div className="mt-6">
+        <h4 className="section-eyebrow">Roster</h4>
+        {sorted.length === 0 ? (
+          <p className="mt-2 text-xs text-muted">No players seeded yet.</p>
+        ) : (
+          <ul className="mt-2 divide-y divide-[color:var(--border-soft)] text-sm">
+            {sorted.map((p) => (
+              <li key={p.id} className="flex items-center justify-between py-2">
+                <span className="flex items-center gap-3">
+                  <span className="inline-block w-10 text-[11px] font-semibold uppercase tracking-wider text-muted">
+                    {p.role}
+                  </span>
+                  <span className="font-medium text-text">{p.ign}</span>
+                </span>
+                {p.real_name && <span className="text-xs text-muted">{p.real_name}</span>}
+              </li>
+            ))}
+          </ul>
         )}
-      </ul>
+      </div>
     </div>
   );
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded border border-border bg-bg/40 px-2 py-1.5">
-      <div className="text-[11px] uppercase tracking-wide text-muted">{label}</div>
-      <div className="mt-0.5 font-medium">{value}</div>
+    <div className="card-inset">
+      <div className="stat-label">{label}</div>
+      <div className="mt-1 stat-value">{value}</div>
     </div>
   );
 }

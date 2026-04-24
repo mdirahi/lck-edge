@@ -40,41 +40,39 @@ export async function HeadToHead({
   const bWins = rows.filter((m: any) => m.winner_team_id === teamBId).length;
 
   return (
-    <div className="rounded-lg border border-border bg-panel p-5">
+    <div className="card">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">
-          Head-to-head · last {months} months
-        </h3>
-        <div className="text-xl font-semibold tabular-nums">
-          <span className={aWins > bWins ? "text-good" : ""}>{teamATag}</span>
+        <h3 className="section-eyebrow">Head-to-head · last {months} months</h3>
+        <div className="text-2xl font-semibold tracking-tight tabular-nums">
+          <span className={aWins > bWins ? "text-good" : "text-text"}>{teamATag}</span>
           <span className="mx-2 text-muted">{aWins}&ndash;{bWins}</span>
-          <span className={bWins > aWins ? "text-good" : ""}>{teamBTag}</span>
+          <span className={bWins > aWins ? "text-good" : "text-text"}>{teamBTag}</span>
         </div>
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-3 text-xs text-muted">
+        <p className="mt-4 text-xs text-muted">
           No completed head-to-head series in the last {months} months. H2H is lightly weighted
           in the model (10%) and LCK rosters churn, so a thin history is expected.
         </p>
       ) : (
-        <ul className="mt-3 divide-y divide-border">
+        <ul className="mt-4 divide-y divide-[color:var(--border-soft)]">
           {rows.map((m: any) => {
             const aWon = m.winner_team_id === teamAId;
             const winnerTag = aWon ? teamATag : teamBTag;
             const loserTag = aWon ? teamBTag : teamATag;
             return (
-              <li key={m.id} className="flex items-center justify-between py-2 text-sm">
-                <span className="flex items-center gap-2">
-                  <span className="inline-flex h-5 min-w-[36px] items-center justify-center rounded bg-good/20 px-1 text-[10px] font-semibold text-good">
+              <li key={m.id} className="flex items-center justify-between py-2.5 text-sm">
+                <span className="flex items-center gap-2.5">
+                  <span className="inline-flex min-w-[40px] items-center justify-center rounded-md bg-good/15 px-1.5 py-0.5 text-[10px] font-bold text-good ring-1 ring-inset ring-good/30">
                     {winnerTag}
                   </span>
                   <span className="text-muted">def.</span>
                   <span className="text-muted">{loserTag}</span>
-                  <span className="ml-2 text-xs text-muted">BO{m.best_of}</span>
+                  <span className="ml-2 text-[11px] text-muted">BO{m.best_of}</span>
                 </span>
-                <span className="text-xs text-muted">
-                  {formatShort(m.start_at)} &middot; {m.split}
+                <span className="text-[11px] tabular-nums text-muted">
+                  {formatShort(m.start_at)} · {m.split}
                 </span>
               </li>
             );

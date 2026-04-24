@@ -50,7 +50,7 @@ export default async function HomePage() {
   if (upErr || pastErr) {
     const err = upErr ?? pastErr;
     return (
-      <div className="rounded-lg border border-border bg-panel p-6 text-bad">
+      <div className="card text-bad">
         <div className="font-semibold">Couldn&rsquo;t load matches</div>
         <p className="mt-1 text-sm">{err?.message}</p>
       </div>
@@ -61,17 +61,17 @@ export default async function HomePage() {
   const past = pastRows ?? [];
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold">LCK matches</h1>
+    <div className="space-y-10">
+      <div className="space-y-1.5">
+        <h1 className="text-3xl font-semibold tracking-tight text-text">LCK matches</h1>
         <p className="text-sm text-muted">
           Click any match for the full analysis page. Prices you enter manually will persist as
           snapshots.
         </p>
       </div>
 
-      <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">Upcoming</h2>
+      <section className="space-y-4">
+        <h2 className="section-eyebrow">Upcoming</h2>
         {upcoming.length === 0 ? (
           <EmptyState>No upcoming LCK matches.</EmptyState>
         ) : (
@@ -81,10 +81,8 @@ export default async function HomePage() {
         )}
       </section>
 
-      <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-          Past results
-        </h2>
+      <section className="space-y-4">
+        <h2 className="section-eyebrow">Past results</h2>
         {past.length === 0 ? (
           <EmptyState>No completed matches yet.</EmptyState>
         ) : (
@@ -99,36 +97,42 @@ export default async function HomePage() {
 
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-border bg-panel p-6 text-sm text-muted">
-      {children}
-    </div>
+    <div className="card text-sm text-muted">{children}</div>
   );
 }
 
 function MatchCard({ m, showWinner }: { m: any; showWinner?: boolean }) {
   const aWon = showWinner && m.winner_team_id === m.team_a?.id;
   const bWon = showWinner && m.winner_team_id === m.team_b?.id;
+  const statusLabel = (m.status as string).toLowerCase();
+  const statusClass =
+    statusLabel === "completed"
+      ? "badge-good"
+      : statusLabel === "live"
+      ? "badge-warn"
+      : "badge-muted";
+
   return (
     <li>
       <Link
         href={`/matches/${m.id}`}
-        className="block rounded-lg border border-border bg-panel p-4 transition hover:border-accent hover:bg-panel/80"
+        className="card-link block"
       >
-        <div className="flex items-center justify-between">
-          <div className="text-lg font-medium">
-            <span className={aWon ? "text-good" : bWon ? "text-muted" : ""}>
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-lg font-semibold tracking-tight">
+            <span className={aWon ? "text-good" : bWon ? "text-muted" : "text-text"}>
               {m.team_a?.tag}
-            </span>{" "}
-            <span className="text-muted">vs</span>{" "}
-            <span className={bWon ? "text-good" : aWon ? "text-muted" : ""}>
+            </span>
+            <span className="mx-1.5 text-muted">vs</span>
+            <span className={bWon ? "text-good" : aWon ? "text-muted" : "text-text"}>
               {m.team_b?.tag}
             </span>
           </div>
-          <div className="text-xs text-muted">BO{m.best_of}</div>
+          <span className="badge-muted">BO{m.best_of}</span>
         </div>
-        <div className="mt-1 flex items-center justify-between text-xs text-muted">
-          <span>{formatKickoff(m.start_at)}</span>
-          <span className="rounded-full border border-border px-2 py-0.5">{m.status}</span>
+        <div className="mt-3 flex items-center justify-between text-xs text-muted">
+          <span className="tabular-nums">{formatKickoff(m.start_at)}</span>
+          <span className={statusClass}>{statusLabel}</span>
         </div>
       </Link>
     </li>

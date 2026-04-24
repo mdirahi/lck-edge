@@ -25,43 +25,45 @@ export function InviteUserForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
-      <label className="text-xs text-muted">
-        Email
-        <input
-          type="email"
-          required
-          className="mt-1 block w-64 rounded border border-border bg-bg/60 px-2 py-1.5 text-sm text-text"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="friend@example.com"
-          disabled={pending}
-        />
-      </label>
-      <label className="text-xs text-muted">
-        Role
-        <select
-          className="mt-1 block rounded border border-border bg-bg/60 px-2 py-1.5 text-sm text-text"
-          value={role}
-          onChange={(e) => setRole(e.target.value as "admin" | "viewer")}
-          disabled={pending}
+    <form onSubmit={onSubmit} className="space-y-3">
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="flex-1 space-y-1.5 min-w-[220px]">
+          <span className="field-label">Email</span>
+          <input
+            type="email"
+            required
+            className="input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="friend@example.com"
+            disabled={pending}
+          />
+        </label>
+        <label className="space-y-1.5">
+          <span className="field-label">Role</span>
+          <select
+            className="select !w-auto"
+            value={role}
+            onChange={(e) => setRole(e.target.value as "admin" | "viewer")}
+            disabled={pending}
+          >
+            <option value="viewer">viewer (read-only)</option>
+            <option value="admin">admin (edit everything)</option>
+          </select>
+        </label>
+        <button
+          type="submit"
+          disabled={pending || !email}
+          className="btn-primary"
         >
-          <option value="viewer">viewer (read-only)</option>
-          <option value="admin">admin (edit everything)</option>
-        </select>
-      </label>
-      <button
-        type="submit"
-        disabled={pending || !email}
-        className="rounded bg-accent px-4 py-2 text-sm font-medium text-bg hover:brightness-110 disabled:opacity-50"
-      >
-        {pending ? "Inviting\u2026" : "Invite"}
-      </button>
+          {pending ? "Inviting\u2026" : "Invite"}
+        </button>
+      </div>
       {error && (
-        <div className="basis-full rounded border border-bad/40 bg-bad/10 p-2 text-xs text-bad">{error}</div>
+        <div className="rounded-lg border border-bad/40 bg-bad/10 px-3 py-2 text-xs text-bad">{error}</div>
       )}
       {success && (
-        <div className="basis-full rounded border border-good/40 bg-good/10 p-2 text-xs text-good">{success}</div>
+        <div className="rounded-lg border border-good/40 bg-good/10 px-3 py-2 text-xs text-good">{success}</div>
       )}
     </form>
   );

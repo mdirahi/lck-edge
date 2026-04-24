@@ -109,27 +109,43 @@ export default async function MatchPage({ params }: PageProps) {
   const teamB = match.team_b as any;
   const patch = match.patch as any;
 
+  const statusStyle =
+    match.status === "completed"
+      ? "badge-good"
+      : match.status === "live"
+      ? "badge-warn"
+      : "badge-muted";
+
   return (
-    <div className="space-y-6">
-      <div className="rounded-lg border border-border bg-panel p-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="text-2xl font-semibold">
-            {teamA.name} <span className="text-muted">vs</span> {teamB.name}
+    <div className="space-y-8">
+      <div className="card-hero">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight">
+              {teamA.name} <span className="text-muted">vs</span> {teamB.name}
+            </h1>
+            <p className="mt-1.5 text-[11px] italic text-muted">
+              Analytical support, not guaranteed betting advice.
+            </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-            <span>{formatKickoff(match.start_at)}</span>
-            <span>&middot; BO{match.best_of}</span>
-            <span>&middot; {match.split}</span>
-            {patch && <span>&middot; Patch {patch.version}</span>}
-            <span className="rounded-full border border-border px-2 py-0.5">{match.status}</span>
+          <div className="flex flex-wrap items-center gap-2 text-[11px] tabular-nums text-muted">
+            <span suppressHydrationWarning>{formatKickoff(match.start_at)}</span>
+            <span className="text-[color:var(--border)]">&middot;</span>
+            <span>BO{match.best_of}</span>
+            <span className="text-[color:var(--border)]">&middot;</span>
+            <span>{match.split}</span>
+            {patch && (
+              <>
+                <span className="text-[color:var(--border)]">&middot;</span>
+                <span>Patch {patch.version}</span>
+              </>
+            )}
+            <span className={statusStyle}>{match.status}</span>
           </div>
         </div>
-        <p className="mt-2 text-xs text-muted">
-          Analytical support, not guaranteed betting advice.
-        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {pred ? (
           <VerdictCard
             prediction={pred as any}
@@ -140,7 +156,7 @@ export default async function MatchPage({ params }: PageProps) {
             latestNovigB={latestOdds ? Number(latestOdds.novig_b) : undefined}
           />
         ) : (
-          <div className="rounded-lg border border-border bg-panel p-5 text-sm text-muted">
+          <div className="card flex items-center justify-center text-sm text-muted">
             No prediction yet. Enter odds below to generate one.
           </div>
         )}
@@ -156,20 +172,33 @@ export default async function MatchPage({ params }: PageProps) {
           />
         ) : (
           latestOdds && (
-            <div className="rounded-lg border border-border bg-panel p-5 text-sm text-muted">
-              Latest market (no-vig): {teamA.tag} {(Number(latestOdds.novig_a) * 100).toFixed(1)}% / {teamB.tag} {(Number(latestOdds.novig_b) * 100).toFixed(1)}%
-              {latestOdds.source ? ` \u00b7 ${latestOdds.source}` : ""}
+            <div className="card">
+              <h3 className="section-eyebrow">Latest market (no-vig)</h3>
+              <div className="mt-3 flex items-baseline gap-4 text-sm">
+                <span className="stat-value">
+                  {teamA.tag}{" "}
+                  <span className="text-muted">{(Number(latestOdds.novig_a) * 100).toFixed(1)}%</span>
+                </span>
+                <span className="text-muted">vs</span>
+                <span className="stat-value">
+                  {teamB.tag}{" "}
+                  <span className="text-muted">{(Number(latestOdds.novig_b) * 100).toFixed(1)}%</span>
+                </span>
+              </div>
+              {latestOdds.source && (
+                <p className="mt-2 text-[11px] text-muted">Source: {latestOdds.source}</p>
+              )}
             </div>
           )
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <TeamOverview team={teamA} players={(playersA ?? []) as any} />
         <TeamOverview team={teamB} players={(playersB ?? []) as any} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <RecentForm teamId={teamA.id} teamTag={teamA.tag} />
         <RecentForm teamId={teamB.id} teamTag={teamB.tag} />
       </div>

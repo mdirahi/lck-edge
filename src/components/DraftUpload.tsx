@@ -61,53 +61,55 @@ export function DraftUpload({ onApply }: Props) {
   }
 
   return (
-    <div className="mb-4 rounded-lg border border-border bg-bg/30 p-4">
+    <div className="rounded-xl border border-[color:var(--border-soft)] bg-[color:var(--bg-elev)]/40 p-4">
       <div className="flex items-baseline justify-between gap-2">
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-muted">
-          Recognize draft from screenshot
-        </h4>
+        <h4 className="section-eyebrow">Recognize draft from screenshot</h4>
         <span className="text-[11px] text-muted">powered by Claude vision</span>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-start gap-3">
+      <div className="mt-4 flex flex-wrap items-center gap-3">
         <input
           type="file"
           accept={ACCEPTED_TYPES.join(",")}
           onChange={onFileChange}
-          className="text-xs text-muted file:mr-3 file:rounded file:border file:border-border file:bg-bg/60 file:px-3 file:py-1.5 file:text-xs file:text-text hover:file:brightness-110"
+          className="text-xs text-muted file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-border file:bg-[color:var(--bg-elev)]/70 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-text file:transition-colors hover:file:border-accent/60 hover:file:bg-[color:var(--panel-lift)]"
         />
         <button
           type="button"
           onClick={onRecognize}
           disabled={!file || pending}
-          className="rounded bg-accent px-3 py-1.5 text-xs font-medium text-bg hover:brightness-110 disabled:opacity-50"
+          className="btn-primary btn-sm"
         >
-          {pending ? "Recognizing\u2026" : "Recognize"}
+          {pending ? "Recognizing…" : "Recognize"}
         </button>
       </div>
 
       {previewUrl && (
-        <div className="mt-3">
+        <div className="mt-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={previewUrl} alt="Draft screenshot preview" className="max-h-48 rounded border border-border" />
+          <img
+            src={previewUrl}
+            alt="Draft screenshot preview"
+            className="max-h-48 rounded-lg border border-[color:var(--border-soft)]"
+          />
         </div>
       )}
 
       {error && (
-        <div className="mt-3 rounded border border-bad/40 bg-bad/10 p-2 text-xs text-bad">
+        <div className="mt-4 rounded-lg border border-bad/40 bg-bad/10 px-3 py-2 text-xs text-bad">
           {error}
         </div>
       )}
 
       {notice && (
-        <div className="mt-3 rounded border border-good/40 bg-good/10 p-2 text-xs text-good">
+        <div className="mt-4 rounded-lg border border-good/40 bg-good/10 px-3 py-2 text-xs text-good">
           {notice}
         </div>
       )}
 
-      <p className="mt-3 text-[11px] text-muted">
-        Upload a draft screenshot (champion select, broadcast overlay, or client). I will pre-fill the form
-        below. Always review before saving \u2014 the model misses sometimes.
+      <p className="mt-4 text-[11px] leading-relaxed text-muted">
+        Upload a draft screenshot (champion select, broadcast overlay, or client) and I&rsquo;ll pre-fill the
+        form below. Always review before saving — the model misses sometimes.
       </p>
     </div>
   );

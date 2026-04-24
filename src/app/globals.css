@@ -9,11 +9,13 @@
   --bg:          #0a0c11;
   --bg-elev:     #11141c;
   --panel:       #141823;
+  --panel-lift:  #171c28;
   --border:      #262b3a;
   --border-soft: #1c2030;
   --muted:       #9aa3b8;
   --text:        #edf1f9;
   --accent:      #6aa9ff;
+  --accent-hi:   #8dbbff;
   --accent-glow: rgba(106, 169, 255, 0.18);
 }
 
@@ -36,36 +38,114 @@ body {
   background-attachment: fixed;
 }
 
-/* Readable text selection that matches the accent */
 ::selection {
   background: var(--accent-glow);
   color: var(--text);
 }
 
-/* Polished focus ring */
 *:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Slim, theme-aware scrollbars (Firefox + WebKit) */
 html {
   scrollbar-color: #2a2f3f transparent;
   scrollbar-width: thin;
 }
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: #262b3a;
   border-radius: 999px;
   border: 2px solid var(--bg);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #343a4d;
+::-webkit-scrollbar-thumb:hover { background: #343a4d; }
+
+/* -----------------------------------------------------------------
+   Component classes — every card/button/input/badge routes through
+   here so spacing and colors stay consistent.
+   ----------------------------------------------------------------- */
+@layer components {
+  /* Cards ----------------------------------------------------------- */
+  .card {
+    @apply rounded-xl border border-border bg-panel p-5 shadow-[0_1px_0_rgba(255,255,255,0.02)_inset,0_8px_24px_-12px_rgba(0,0,0,0.5)];
+  }
+  /* Dominant card — used for Quick Verdict, match header */
+  .card-hero {
+    @apply rounded-xl border border-border bg-panel p-6 shadow-[0_1px_0_rgba(255,255,255,0.03)_inset,0_12px_32px_-14px_rgba(0,0,0,0.55)];
+    background-image: linear-gradient(180deg, rgba(106,169,255,0.04), transparent 45%);
+  }
+  /* Nested surface inside a card (stat tile, preview box, etc.) */
+  .card-inset {
+    @apply rounded-lg border border-[color:var(--border-soft)] bg-[color:var(--bg-elev)]/60 p-3;
+  }
+  /* Hoverable list card (match list tiles) */
+  .card-link {
+    @apply card transition-colors duration-150 hover:border-accent/60 hover:bg-[color:var(--panel-lift)];
+  }
+
+  /* Section headers ------------------------------------------------- */
+  .section-eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-muted;
+  }
+  .section-title {
+    @apply text-lg font-semibold text-text;
+  }
+
+  /* Buttons --------------------------------------------------------- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium
+           transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-accent text-bg shadow-[0_4px_16px_-6px_rgba(106,169,255,0.55)]
+           hover:bg-[color:var(--accent-hi)];
+  }
+  .btn-ghost {
+    @apply btn border border-border bg-transparent text-text
+           hover:border-accent/60 hover:bg-[color:var(--panel-lift)];
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  /* Inputs ---------------------------------------------------------- */
+  .field-label {
+    @apply block text-[11px] font-medium uppercase tracking-wide text-muted;
+  }
+  .input, .select {
+    @apply w-full rounded-lg border border-border bg-[color:var(--bg-elev)]/70 px-3 py-2 text-sm text-text
+           transition-colors duration-150
+           placeholder:text-muted/70
+           hover:border-[color:#2f3547]
+           focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30;
+  }
+  .input-invalid {
+    @apply border-warn/70 focus:border-warn focus:ring-warn/30;
+  }
+
+  /* Badges ---------------------------------------------------------- */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wide;
+  }
+  .badge-muted  { @apply badge border-border bg-[color:var(--bg-elev)]/60 text-muted; }
+  .badge-accent { @apply badge border-accent/40 bg-accent/10 text-accent; }
+  .badge-good   { @apply badge border-good/40 bg-good/10 text-good; }
+  .badge-warn   { @apply badge border-warn/40 bg-warn/10 text-warn; }
+  .badge-bad    { @apply badge border-bad/40 bg-bad/10 text-bad; }
+
+  /* Stat tiles ------------------------------------------------------ */
+  .stat-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.1em] text-muted;
+  }
+  .stat-value {
+    @apply text-base font-semibold text-text tabular-nums;
+  }
+  .stat-value-lg {
+    @apply text-3xl font-semibold text-text tabular-nums leading-tight;
+  }
+
+  /* Dividers -------------------------------------------------------- */
+  .divider-soft { @apply border-t border-[color:var(--border-soft)]; }
 }

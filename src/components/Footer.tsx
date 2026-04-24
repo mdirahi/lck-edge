@@ -1,7 +1,7 @@
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-border bg-panel/40">
-      <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted space-y-2">
+    <footer className="mt-20 border-t border-[color:var(--border-soft)] bg-[color:rgba(20,24,35,0.4)]">
+      <div className="mx-auto max-w-6xl space-y-2 px-4 py-8 text-xs leading-relaxed text-muted">
         <p>
           <strong className="text-text">Analytical support, not guaranteed betting advice.</strong>{" "}
           This tool is for research. Every prediction can be wrong. Betting markets are efficient;

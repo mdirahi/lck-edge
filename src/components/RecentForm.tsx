@@ -33,12 +33,10 @@ export async function RecentForm({
   const rate = rows.length > 0 ? wins / rows.length : null;
 
   return (
-    <div className="rounded-lg border border-border bg-panel p-4">
-      <div className="flex items-baseline justify-between">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">
-          Recent form · {teamTag}
-        </h3>
-        <div className="text-xs text-muted">
+    <div className="card">
+      <div className="flex items-baseline justify-between gap-2">
+        <h3 className="section-eyebrow">Recent form · {teamTag}</h3>
+        <div className="text-xs tabular-nums text-muted">
           {rows.length > 0
             ? `${wins}-${losses} · ${rate !== null ? (rate * 100).toFixed(0) : "–"}%`
             : "no data"}
@@ -46,32 +44,31 @@ export async function RecentForm({
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-2 text-xs text-muted">
-          No completed series on file yet. Add completed matches via SQL or wait for the
-          Leaguepedia importer.
+        <p className="mt-3 text-xs text-muted">
+          No completed series on file yet. Matches will appear here once the Leaguepedia importer runs.
         </p>
       ) : (
-        <ul className="mt-3 space-y-1.5">
+        <ul className="mt-4 space-y-2">
           {rows.map((m: any) => {
             const won = m.winner_team_id === teamId;
             const isA = m.team_a_id === teamId;
             const opp = isA ? m.team_b : m.team_a;
             return (
               <li key={m.id} className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-2">
+                <span className="flex items-center gap-2.5">
                   <span
-                    className={`inline-flex h-5 w-5 items-center justify-center rounded text-[10px] font-semibold ${
+                    className={`inline-flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold ${
                       won
-                        ? "bg-good/20 text-good"
-                        : "bg-bad/20 text-bad"
+                        ? "bg-good/15 text-good ring-1 ring-inset ring-good/30"
+                        : "bg-bad/15 text-bad ring-1 ring-inset ring-bad/30"
                     }`}
                   >
                     {won ? "W" : "L"}
                   </span>
                   <span className="text-muted">vs</span>
-                  <span>{opp?.tag ?? "???"}</span>
+                  <span className="font-medium text-text">{opp?.tag ?? "???"}</span>
                 </span>
-                <span className="text-muted">{formatShort(m.start_at)}</span>
+                <span className="tabular-nums text-muted">{formatShort(m.start_at)}</span>
               </li>
             );
           })}

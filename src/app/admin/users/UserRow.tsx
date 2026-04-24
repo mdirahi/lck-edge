@@ -27,32 +27,28 @@ export function UserRow({ mode, user, meId }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-3 py-2 text-sm">
-      <div className="flex-1">
-        <div className="text-text">{user.email}</div>
-        <div className="text-xs text-muted">
+    <div className="flex items-center gap-3 py-2.5 text-sm">
+      <div className="flex-1 min-w-0">
+        <div className="truncate text-text">{user.email}</div>
+        <div className="text-[11px] text-muted">
           {mode === "active" ? "active" : "pending first login"}
         </div>
       </div>
-      <span className={`rounded border px-2 py-0.5 text-xs ${
-        user.role === "admin"
-          ? "border-accent/40 text-accent"
-          : "border-border text-muted"
-      }`}>
+      <span className={user.role === "admin" ? "badge-accent" : "badge-muted"}>
         {user.role}
       </span>
       {!isMe ? (
         <button
           onClick={onRemove}
           disabled={pending}
-          className="rounded border border-bad/40 px-2 py-0.5 text-xs text-bad hover:bg-bad/10 disabled:opacity-50"
+          className="btn-ghost btn-sm !border-bad/40 !text-bad hover:!border-bad/70 hover:!bg-bad/10"
         >
           {pending ? "Removing\u2026" : "Remove"}
         </button>
       ) : (
-        <span className="text-xs text-muted">(you)</span>
+        <span className="text-[11px] italic text-muted">(you)</span>
       )}
-      {error && <span className="text-xs text-bad">{error}</span>}
+      {error && <span className="text-[11px] text-bad">{error}</span>}
     </div>
   );
 }
