@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import { TeamOverview } from "@/components/TeamOverview";
 import { OddsCard } from "@/components/OddsCard";
+import { RefreshOddsButton } from "@/components/RefreshOddsButton";
 import { VerdictCard } from "@/components/VerdictCard";
 import { RecentForm } from "@/components/RecentForm";
 import { HeadToHead } from "@/components/HeadToHead";
@@ -161,15 +162,18 @@ export default async function MatchPage({ params }: PageProps) {
           </div>
         )}
         {canEdit ? (
-          <OddsCard
-            matchId={match.id}
-            teamATag={teamA.tag}
-            teamBTag={teamB.tag}
-            latestNovigA={latestOdds ? Number(latestOdds.novig_a) : undefined}
-            latestNovigB={latestOdds ? Number(latestOdds.novig_b) : undefined}
-            latestSource={latestOdds?.source}
-            latestCapturedAt={latestOdds?.captured_at}
-          />
+          <div className="space-y-3">
+            <RefreshOddsButton matchId={match.id} />
+            <OddsCard
+              matchId={match.id}
+              teamATag={teamA.tag}
+              teamBTag={teamB.tag}
+              latestNovigA={latestOdds ? Number(latestOdds.novig_a) : undefined}
+              latestNovigB={latestOdds ? Number(latestOdds.novig_b) : undefined}
+              latestSource={latestOdds?.source}
+              latestCapturedAt={latestOdds?.captured_at}
+            />
+          </div>
         ) : (
           latestOdds && (
             <div className="card">
