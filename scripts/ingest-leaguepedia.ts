@@ -17,8 +17,45 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const LP_API = "https://lol.fandom.com/wiki/Special:CargoExport";
-const OVERVIEW = process.env.LP_OVERVIEW ?? "LCK/2026 Season/Spring Season";
+const OVERVIEW = process.env.LP_OVERVIEW ?? "LCK/2026 Season/Rounds 1-2";
 const DRY_RUN = process.env.LP_DRY_RUN === "1";
+
+/**
+ * Derive a human-readable split label from the OverviewPage. The label ends up
+ * on the match-card pill ("2026 Cup", "2026 Rounds 1-2", "2026 Playoffs", ...).
+ *
+ * Examples:
+ *   "LCK/2026 Season/Rounds 1-2"      -> "2026 Rounds 1-2"
+ *   "LCK/2026 Season/Cup"             -> "2026 Cup"
+ *   "LCK/2026 Season/Season Playoffs" -> "2026 Playoffs"
+ *   "LCK/2024 Season/Spring Season"   -> "2024 Spring"
+ *   "LCK 2025 Season Opening"         -> "2025 Opening"
+ */
+function deriveSplitLabel(overview: string): string {
+  // Extract the first 4-digit year we see (e.g. "2026").
+  const yearMatch = overview.match(/\b(20\d{2})\b/);
+  const year = yearMatch?.[1];
+
+  // Pull the part after the last "/", which is typically the stage name.
+  const tail = overview.split("/").pop() ?? overview;
+  // Strip the leading league-and-year prefix if there's no slash separator
+  // (e.g. "LCK 2025 Season Opening" → "Opening" via stripping known boilerplate).
+  let stage = tail.replace(/^LCK\s+\d{4}\s+Season\s*/i, "");
+  // Drop the redundant trailing "Season" so "Spring Season" → "Spring",
+  // "Season Playoffs" → "Playoffs", etc. Be careful to leave standalone
+  // "Season" alone if that's the entire remaining string.
+  stage = stage.replace(/\s*Season\s*Playoffs/i, "Playoffs");
+  stage = stage.replace(/\s*Season\s*Play-In/i, "Play-In");
+  stage = stage.replace(/\s+Season$/i, "");
+  stage = stage.replace(/^Season\s+/i, "");
+  stage = stage.trim();
+
+  if (year && stage) return `${year} ${stage}`;
+  if (year) return year;
+  return stage || overview;
+}
+
+const SPLIT_LABEL = deriveSplitLabel(OVERVIEW);
 
 interface MatchScheduleRow {
   DateTime_UTC: string;
@@ -215,7 +252,66 @@ async function ensurePatch(
   return created.id;
 }
 
+interface TournamentRow {
+  Name: string;
+  OverviewPage: string;
+  DateStart: string | null;
+  Date: string | null;
+  League: string | null;
+}
+
+async function listLckTournaments() {
+  console.log("[list] fetching recent LCK tournaments from Leaguepedia...");
+  // The Tournaments.League column is unreliable across years (sometimes the
+  // full league name, sometimes blank), so we filter by OverviewPage prefix.
+  // LIKE patterns in Cargo use SQL syntax.
+  const rows = await cargoQuery<TournamentRow>({
+    tables: "Tournaments",
+    fields:
+      "Tournaments.Name=Name, Tournaments.OverviewPage=OverviewPage, Tournaments.DateStart=DateStart, Tournaments.Date=Date, Tournaments.League=League",
+    where: `Tournaments.OverviewPage LIKE "LCK%" AND Tournaments.DateStart >= "2024-01-01"`,
+    orderBy: "Tournaments.DateStart DESC",
+    limit: 50,
+  });
+  if (rows.length === 0) {
+    console.log("[list] no tournaments found via OverviewPage LIKE 'LCK%'. Trying fallback (any tournament with League containing 'LCK')...");
+    const fallback = await cargoQuery<TournamentRow>({
+      tables: "Tournaments",
+      fields:
+        "Tournaments.Name=Name, Tournaments.OverviewPage=OverviewPage, Tournaments.DateStart=DateStart, Tournaments.Date=Date, Tournaments.League=League",
+      where: `Tournaments.DateStart >= "2024-01-01" AND (Tournaments.League LIKE "%LCK%" OR Tournaments.League LIKE "%Champions Korea%")`,
+      orderBy: "Tournaments.DateStart DESC",
+      limit: 50,
+    });
+    if (fallback.length === 0) {
+      console.log("[list] still nothing. Leaguepedia's schema may have changed; try visiting https://lol.fandom.com/wiki/LCK manually.");
+      return;
+    }
+    console.log(`[list] fallback found ${fallback.length} rows:\n`);
+    for (const r of fallback) {
+      const start = r.DateStart ?? "?";
+      const end = r.Date ?? "?";
+      console.log(`  ${start} → ${end}   League="${r.League}"   "${r.OverviewPage}"`);
+    }
+    return;
+  }
+  console.log(`[list] ${rows.length} LCK tournaments since 2024:\n`);
+  for (const r of rows) {
+    const start = r.DateStart ?? "?";
+    const end = r.Date ?? "?";
+    console.log(`  ${start} → ${end}   "${r.OverviewPage}"`);
+  }
+  console.log(
+    `\n[list] copy any OverviewPage above and re-run with:\n  $env:LP_OVERVIEW="<paste it>"; npm run ingest:leaguepedia`
+  );
+}
+
 async function main() {
+  if (process.env.LP_LIST === "1") {
+    await listLckTournaments();
+    return;
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) {
@@ -262,6 +358,14 @@ async function main() {
     orderBy: "MatchSchedule.DateTime_UTC ASC",
   });
   console.log(`[ingest]  ${matchRows.length} matches`);
+
+  if (matchRows.length === 0) {
+    console.warn(
+      `\n[ingest] No matches found for OverviewPage="${OVERVIEW}". The naming convention has shifted across years. Listing recent LCK tournaments to help you pick the right one:\n`
+    );
+    await listLckTournaments();
+    return;
+  }
 
   let upserted = 0;
   let skipped = 0;
@@ -320,7 +424,7 @@ async function main() {
       team_b_id: teamBId,
       winner_team_id: winnerTeamId,
       patch_id: patchId,
-      split: "2026 Spring",
+      split: SPLIT_LABEL,
     };
 
     if (existing) {

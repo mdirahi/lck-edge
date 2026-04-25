@@ -72,7 +72,7 @@ export default async function HomePage() {
       <div className="space-y-2.5">
         <div className="inline-flex items-center gap-2 rounded-full border border-border-soft bg-bg-elev/60 px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-muted">
           <span className="dot-accent dot-pulse" />
-          LCK 2026 Spring &middot; Research
+          LCK 2026 Season &middot; Research
         </div>
         <h1 className="page-title">
           LCK{" "}

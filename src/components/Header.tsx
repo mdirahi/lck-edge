@@ -35,7 +35,7 @@ export async function Header() {
         <div className="ml-auto flex items-center gap-3">
           <span className="hidden badge-accent md:inline-flex">
             <span className="dot-accent dot-pulse" />
-            LCK 2026 Spring
+            LCK 2026 Season
           </span>
           {user ? (
             <div className="flex items-center gap-2.5 text-xs">
