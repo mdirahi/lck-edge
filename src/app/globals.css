@@ -16,27 +16,50 @@
   --text:        #edf1f9;
   --accent:      #6aa9ff;
   --accent-hi:   #8dbbff;
+  --accent-2:    #b69bff;
   --accent-glow: rgba(106, 169, 255, 0.18);
+  --good:        #3ed39a;
+  --warn:        #f1b63d;
+  --bad:         #f06e5b;
 }
 
 html, body {
   min-height: 100%;
   background: var(--bg);
   color: var(--text);
+  font-feature-settings: "ss01", "cv11", "zero";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Subtle top-down gradient — gives the dark theme depth without
-   being loud. Fixed so it doesn't scroll with content. */
+/* Layered background:
+   - A fixed radial-gradient halo at top for warmth
+   - A faint dot-grid overlay gives the dark theme texture without noise
+   - A bottom-right violet glow for color balance */
 body {
   background:
-    radial-gradient(1200px 600px at 50% -200px, rgba(106, 169, 255, 0.08), transparent 60%),
-    radial-gradient(900px 500px at 90% 10%, rgba(62, 211, 154, 0.04), transparent 55%),
+    radial-gradient(1100px 580px at 50% -180px, rgba(106, 169, 255, 0.10), transparent 60%),
+    radial-gradient(900px 520px at 92% 8%, rgba(182, 155, 255, 0.06), transparent 55%),
+    radial-gradient(700px 400px at 8% 100%, rgba(62, 211, 154, 0.04), transparent 55%),
     var(--bg);
   background-attachment: fixed;
+  position: relative;
 }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(1000px 700px at 50% 20%, black 40%, transparent 90%);
+  -webkit-mask-image: radial-gradient(1000px 700px at 50% 20%, black 40%, transparent 90%);
+}
+/* Make real content sit above the dot pattern overlay */
+body > * { position: relative; z-index: 1; }
 
 ::selection {
   background: var(--accent-glow);
@@ -62,6 +85,11 @@ html {
 }
 ::-webkit-scrollbar-thumb:hover { background: #343a4d; }
 
+/* Typography refinements --------------------------------------- */
+h1, h2, h3, h4 { letter-spacing: -0.01em; }
+.font-display { letter-spacing: -0.02em; }
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
 /* -----------------------------------------------------------------
    Component classes — every card/button/input/badge routes through
    here so spacing and colors stay consistent.
@@ -69,42 +97,77 @@ html {
 @layer components {
   /* Cards ----------------------------------------------------------- */
   .card {
-    @apply rounded-xl border border-border bg-panel p-5 shadow-[0_1px_0_rgba(255,255,255,0.02)_inset,0_8px_24px_-12px_rgba(0,0,0,0.5)];
+    @apply relative rounded-2xl border border-border/80 bg-panel p-5 shadow-card;
   }
-  /* Dominant card — used for Quick Verdict, match header */
+  /* Dominant card — used for Quick Verdict, match header, login */
   .card-hero {
-    @apply rounded-xl border border-border bg-panel p-6 shadow-[0_1px_0_rgba(255,255,255,0.03)_inset,0_12px_32px_-14px_rgba(0,0,0,0.55)];
-    background-image: linear-gradient(180deg, rgba(106,169,255,0.04), transparent 45%);
+    @apply relative rounded-2xl border border-border/80 bg-panel p-6 shadow-hero overflow-hidden;
+    background-image:
+      linear-gradient(180deg, rgba(106,169,255,0.055), transparent 45%),
+      linear-gradient(180deg, rgba(182,155,255,0.03), transparent 70%);
+  }
+  /* Thin top-edge gradient line on hero cards — adds premium feel */
+  .card-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(106,169,255,0.55) 50%, transparent 100%);
+    pointer-events: none;
   }
   /* Nested surface inside a card (stat tile, preview box, etc.) */
   .card-inset {
-    @apply rounded-lg border border-[color:var(--border-soft)] bg-bg-elev/60 p-3;
+    @apply rounded-xl border border-border-soft bg-bg-elev/60 p-3;
   }
-  /* Hoverable list card (match list tiles) */
+  /* Hoverable link card (match list tiles) */
   .card-link {
-    @apply card transition-colors duration-150 hover:border-accent/60 hover:bg-[color:var(--panel-lift)];
+    @apply card transition-all duration-200;
+  }
+  .card-link:hover {
+    border-color: rgba(106, 169, 255, 0.55);
+    background: var(--panel-lift);
+    transform: translateY(-1px);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.04) inset,
+      0 18px 40px -18px rgba(0,0,0,0.65),
+      0 0 0 1px rgba(106,169,255,0.15);
   }
 
   /* Section headers ------------------------------------------------- */
   .section-eyebrow {
-    @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-muted;
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-muted;
   }
   .section-title {
     @apply text-lg font-semibold text-text;
+  }
+  .page-title {
+    @apply font-display text-[32px] font-semibold tracking-tight text-text;
   }
 
   /* Buttons --------------------------------------------------------- */
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium
-           transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
+           transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn bg-accent text-bg shadow-[0_4px_16px_-6px_rgba(106,169,255,0.55)]
-           hover:bg-[color:var(--accent-hi)];
+    @apply btn text-bg relative overflow-hidden;
+    background-image: linear-gradient(180deg, #7ab4ff 0%, #5c9cf6 100%);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.25) inset,
+      0 6px 20px -8px rgba(106,169,255,0.7);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-image: linear-gradient(180deg, #8cbeff 0%, #6ba6fa 100%);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.3) inset,
+      0 8px 26px -8px rgba(106,169,255,0.85);
   }
   .btn-ghost {
-    @apply btn border border-border bg-transparent text-text
-           hover:border-accent/60 hover:bg-[color:var(--panel-lift)];
+    @apply btn border border-border-soft bg-bg-elev/40 text-text;
+  }
+  .btn-ghost:hover:not(:disabled) {
+    border-color: rgba(106, 169, 255, 0.4);
+    background: var(--panel-lift);
   }
   .btn-sm {
     @apply px-3 py-1.5 text-xs;
@@ -112,40 +175,129 @@ html {
 
   /* Inputs ---------------------------------------------------------- */
   .field-label {
-    @apply block text-[11px] font-medium uppercase tracking-wide text-muted;
+    @apply text-[11px] font-semibold uppercase tracking-[0.1em] text-muted;
   }
   .input, .select {
-    @apply w-full rounded-lg border border-border bg-bg-elev/70 px-3 py-2 text-sm text-text
-           transition-colors duration-150
-           placeholder:text-muted/70
-           hover:border-[color:#2f3547]
-           focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30;
+    @apply w-full rounded-lg border border-border bg-bg-elev/60 px-3 py-2 text-sm text-text
+           transition-colors placeholder:text-muted/60
+           focus:border-accent/60 focus:bg-panel focus:outline-none;
   }
   .input-invalid {
-    @apply border-warn/70 focus:border-warn focus:ring-warn/30;
+    @apply border-warn/60 bg-warn/5;
+  }
+  .select {
+    @apply appearance-none pr-8;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+      linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position:
+      calc(100% - 14px) calc(50% - 2px),
+      calc(100% - 9px) calc(50% - 2px);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
   }
 
-  /* Badges ---------------------------------------------------------- */
+  /* Badges (dot + label inline) ------------------------------------- */
   .badge {
-    @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wide;
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium tabular-nums;
   }
-  .badge-muted  { @apply badge border-border bg-bg-elev/60 text-muted; }
-  .badge-accent { @apply badge border-accent/40 bg-accent/10 text-accent; }
-  .badge-good   { @apply badge border-good/40 bg-good/10 text-good; }
-  .badge-warn   { @apply badge border-warn/40 bg-warn/10 text-warn; }
-  .badge-bad    { @apply badge border-bad/40 bg-bad/10 text-bad; }
+  .badge-accent {
+    @apply badge border-accent/30 bg-accent/10 text-accent;
+  }
+  .badge-good {
+    @apply badge border-good/30 bg-good/10 text-good;
+  }
+  .badge-warn {
+    @apply badge border-warn/40 bg-warn/10 text-warn;
+  }
+  .badge-bad {
+    @apply badge border-bad/40 bg-bad/10 text-bad;
+  }
+  .badge-muted {
+    @apply badge border-border-soft bg-bg-elev/60 text-muted;
+  }
 
-  /* Stat tiles ------------------------------------------------------ */
+  /* Stat values ----------------------------------------------------- */
   .stat-label {
-    @apply text-[10px] font-semibold uppercase tracking-[0.1em] text-muted;
+    @apply text-[10px] font-semibold uppercase tracking-[0.12em] text-muted;
   }
   .stat-value {
-    @apply text-base font-semibold text-text tabular-nums;
+    @apply text-2xl font-semibold tabular-nums text-text;
   }
   .stat-value-lg {
-    @apply text-3xl font-semibold text-text tabular-nums leading-tight;
+    @apply font-display text-4xl font-semibold tabular-nums leading-none tracking-tight;
   }
 
-  /* Dividers -------------------------------------------------------- */
-  .divider-soft { @apply border-t border-[color:var(--border-soft)]; }
+  /* Team tags (match cards) ----------------------------------------- */
+  .team-tag {
+    @apply inline-flex items-center rounded-md border border-border-soft bg-bg-elev/70
+           px-2 py-1 font-display text-sm font-semibold tracking-tight text-text;
+  }
+  .team-tag-blue {
+    @apply border-accent/30 bg-accent/10 text-accent;
+  }
+  .team-tag-red {
+    @apply border-bad/30 bg-bad/10 text-bad;
+  }
+  .team-tag-win {
+    @apply border-good/40 bg-good/10 text-good;
+  }
+  .team-tag-lose {
+    @apply border-border-soft bg-bg-elev/40 text-muted;
+  }
+
+  /* Header nav ------------------------------------------------------ */
+  .nav-link {
+    @apply relative rounded-md px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:text-text;
+  }
+  .nav-link-active {
+    @apply text-text;
+  }
+  .nav-link-active::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: -2px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%);
+    box-shadow: 0 0 12px -2px rgba(106, 169, 255, 0.55);
+  }
+
+  /* Status dots ----------------------------------------------------- */
+  .dot-accent, .dot-good, .dot-warn, .dot-muted, .dot-bad {
+    @apply inline-block h-1.5 w-1.5 rounded-full;
+  }
+  .dot-accent { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .dot-good   { background: var(--good);   box-shadow: 0 0 8px rgba(62,211,154,0.6); }
+  .dot-warn   { background: var(--warn);   box-shadow: 0 0 8px rgba(241,182,61,0.6); }
+  .dot-bad    { background: var(--bad);    box-shadow: 0 0 8px rgba(240,110,91,0.6); }
+  .dot-muted  { background: var(--muted); }
+  .dot-pulse {
+    animation: dot-pulse 2.4s ease-in-out infinite;
+  }
+
+  /* Soft horizontal divider used inside cards ----------------------- */
+  .divider-soft {
+    @apply border-t border-border-soft;
+  }
+
+  /* Win-probability bar -------------------------------------------- */
+  .prob-track {
+    @apply relative flex h-2 w-full overflow-hidden rounded-full border border-border-soft bg-bg-elev/60;
+  }
+  .prob-fill-a {
+    background: linear-gradient(90deg, rgba(106,169,255,0.5) 0%, rgba(106,169,255,0.95) 100%);
+    box-shadow: inset 0 0 0 1px rgba(106,169,255,0.25);
+  }
+  .prob-fill-b {
+    background: linear-gradient(90deg, rgba(240,110,91,0.95) 0%, rgba(240,110,91,0.5) 100%);
+    box-shadow: inset 0 0 0 1px rgba(240,110,91,0.25);
+  }
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.55; transform: scale(0.85); }
 }

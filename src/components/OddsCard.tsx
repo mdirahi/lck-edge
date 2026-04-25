@@ -38,6 +38,8 @@ export function OddsCard({
   // Live preview as the user types (doesn't write to DB).
   const preview: PreviewState = computePreview(format, teamA, teamB);
 
+  const hasSnapshot = latestNovigA !== undefined && latestNovigB !== undefined;
+
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -61,25 +63,39 @@ export function OddsCard({
     <div className="card">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="section-title">Odds</h3>
-        <span className="text-xs text-muted">
-          Paste your line. Enter once per new price you see.
+        <span className="text-[11px] uppercase tracking-[0.08em] text-muted">
+          Manual entry &middot; no-vig fair
         </span>
       </div>
 
-      {(latestNovigA !== undefined && latestNovigB !== undefined) && (
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <SnapshotTile tag={teamATag} novig={latestNovigA} />
-          <SnapshotTile tag={teamBTag} novig={latestNovigB} />
-        </div>
-      )}
-      {latestSource && (
-        <p className="mt-2 text-[11px] text-muted" suppressHydrationWarning>
-          Last: {latestSource}
-          {latestCapturedAt ? ` · ${formatCapturedAt(latestCapturedAt)}` : ""}
-        </p>
+      {hasSnapshot && (
+        <>
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <SnapshotTile tag={teamATag} novig={latestNovigA!} side="blue" />
+            <SnapshotTile tag={teamBTag} novig={latestNovigB!} side="red" />
+          </div>
+          {latestSource && (
+            <div className="mt-2.5 flex items-center gap-1.5 text-[11px] text-muted" suppressHydrationWarning>
+              <span className="dot-muted" />
+              <span>Last snapshot: <span className="text-text/80">{latestSource}</span></span>
+              {latestCapturedAt && (
+                <>
+                  <span className="text-muted/50">&middot;</span>
+                  <span className="tabular-nums">{formatCapturedAt(latestCapturedAt)}</span>
+                </>
+              )}
+            </div>
+          )}
+        </>
       )}
 
-      <form onSubmit={onSubmit} className="mt-5 space-y-4">
+      {!hasSnapshot && (
+        <div className="mt-5 rounded-xl border border-dashed border-border-soft bg-bg-elev/40 px-3.5 py-3 text-xs text-muted">
+          No price entered yet. Paste a line below to unlock the model-vs-market edge.
+        </div>
+      )}
+
+      <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <LabeledSelect
             label="Format"
@@ -109,7 +125,10 @@ export function OddsCard({
           />
         </div>
 
-        <div className="text-[11px] text-muted">{helpFor(format)}</div>
+        <div className="flex items-start gap-2 text-[11px] text-muted">
+          <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-muted/50" />
+          <span>{helpFor(format)}</span>
+        </div>
 
         <LabeledInput
           label="Source label"
@@ -119,24 +138,31 @@ export function OddsCard({
         />
 
         {preview?.ok && (
-          <div className="card-inset grid grid-cols-2 gap-3 text-sm">
-            <PreviewLine tag={teamATag} implied={preview.result.teamAImpliedProb} novig={preview.result.novigA} />
-            <PreviewLine tag={teamBTag} implied={preview.result.teamBImpliedProb} novig={preview.result.novigB} />
-            <div className="col-span-2 text-xs text-muted">
-              Overround (vig): {(preview.result.overround * 100 - 100).toFixed(2)}%
+          <div className="rounded-xl border border-accent/20 bg-gradient-to-br from-accent/[0.06] via-transparent to-accent-2/[0.04] p-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <PreviewLine tag={teamATag} implied={preview.result.teamAImpliedProb} novig={preview.result.novigA} side="blue" />
+              <PreviewLine tag={teamBTag} implied={preview.result.teamBImpliedProb} novig={preview.result.novigB} side="red" />
+            </div>
+            <div className="mt-3 flex items-center justify-between border-t border-border-soft/60 pt-2.5 text-[11px] text-muted">
+              <span className="uppercase tracking-[0.08em]">Overround (vig)</span>
+              <span className="tabular-nums text-text/90">
+                {(preview.result.overround * 100 - 100).toFixed(2)}%
+              </span>
             </div>
           </div>
         )}
 
         {preview?.ok === false && teamA && teamB && (
-          <div className="rounded-lg border border-warn/40 bg-warn/10 px-3 py-2 text-xs text-warn">
-            {preview.error}
+          <div className="flex items-start gap-2 rounded-xl border border-warn/40 bg-warn/10 px-3.5 py-2.5 text-xs text-warn">
+            <span className="dot-warn mt-1.5 shrink-0" />
+            <span>{preview.error}</span>
           </div>
         )}
 
         {error && (
-          <div className="rounded-lg border border-bad/40 bg-bad/10 px-3 py-2 text-xs text-bad">
-            {error}
+          <div className="flex items-start gap-2 rounded-xl border border-bad/40 bg-bad/10 px-3.5 py-2.5 text-xs text-bad">
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-bad" />
+            <span>{error}</span>
           </div>
         )}
 
@@ -145,7 +171,7 @@ export function OddsCard({
           disabled={pending || !preview?.ok}
           className="btn-primary w-full sm:w-auto"
         >
-          {pending ? "Saving…" : "Save & re-score"}
+          {pending ? "Saving\u2026" : "Save & re-score"}
         </button>
       </form>
     </div>
@@ -244,23 +270,54 @@ function LabeledSelect({
   );
 }
 
-function PreviewLine({ tag, implied, novig }: { tag: string; implied: number; novig: number }) {
+function PreviewLine({
+  tag, implied, novig, side,
+}: {
+  tag: string; implied: number; novig: number; side: "blue" | "red";
+}) {
+  const tone = side === "blue" ? "text-accent" : "text-bad";
   return (
     <div>
-      <div className="stat-label">{tag}</div>
-      <div className="mt-0.5 text-base font-semibold text-text tabular-nums">
-        {formatProb(novig)} <span className="text-xs font-normal text-muted">fair</span>
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
+        <span className={`h-1.5 w-1.5 rounded-full ${side === "blue" ? "bg-accent" : "bg-bad"}`} />
+        {tag}
       </div>
-      <div className="text-[11px] text-muted tabular-nums">raw {formatProb(implied)}</div>
+      <div className={`mt-1 font-display text-xl font-semibold tabular-nums ${tone}`}>
+        {formatProb(novig)}
+        <span className="ml-1.5 align-baseline text-[10px] font-normal uppercase tracking-[0.1em] text-muted">
+          fair
+        </span>
+      </div>
+      <div className="text-[11px] text-muted tabular-nums">
+        raw {formatProb(implied)}
+      </div>
     </div>
   );
 }
 
-function SnapshotTile({ tag, novig }: { tag: string; novig: number }) {
+function SnapshotTile({
+  tag, novig, side,
+}: {
+  tag: string; novig: number; side: "blue" | "red";
+}) {
+  const accent =
+    side === "blue"
+      ? "border-accent/25 bg-gradient-to-br from-accent/[0.08] via-transparent to-transparent"
+      : "border-bad/25 bg-gradient-to-br from-bad/[0.08] via-transparent to-transparent";
+  const dot = side === "blue" ? "bg-accent" : "bg-bad";
+  const tone = side === "blue" ? "text-accent" : "text-bad";
   return (
-    <div className="card-inset">
-      <div className="stat-label">{tag} fair</div>
-      <div className="mt-1 text-2xl font-semibold text-text tabular-nums">{formatProb(novig)}</div>
+    <div className={`rounded-xl border px-4 py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] ${accent}`}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
+          <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+          {tag}
+        </div>
+        <span className="text-[10px] uppercase tracking-[0.1em] text-muted/70">fair</span>
+      </div>
+      <div className={`mt-1.5 font-display text-2xl font-semibold tabular-nums ${tone}`}>
+        {formatProb(novig)}
+      </div>
     </div>
   );
 }
