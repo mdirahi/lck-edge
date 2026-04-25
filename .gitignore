@@ -10,3 +10,6 @@ tsconfig.tsbuildinfo
 # Secrets
 .env.local
 .env*.local
+
+.vercel
+.env*.local

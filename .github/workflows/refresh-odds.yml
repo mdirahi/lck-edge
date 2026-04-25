@@ -1,0 +1,37 @@
+name: Refresh LCK odds
+
+# Pings the deployed /api/cron/refresh-odds route on a schedule. Lives in
+# GitHub Actions instead of Vercel Cron because Hobby Vercel accounts are
+# capped at one cron tick per day, which is too coarse for line movement.
+#
+# Setup (one time):
+#   1. GitHub repo → Settings → Secrets and variables → Actions
+#   2. Add secret CRON_SECRET     = same value as the Vercel env var
+#   3. Add variable VERCEL_BASE_URL = https://lck-edge-jr6n.vercel.app
+#      (no trailing slash; use Vercel's primary production domain)
+#
+# Manual trigger: GitHub repo → Actions → "Refresh LCK odds" → Run workflow.
+on:
+  schedule:
+    # Every 30 minutes. GitHub may delay scheduled runs by a few minutes
+    # during peak load — that's fine for our purposes.
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping refresh-odds endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          BASE_URL: ${{ vars.VERCEL_BASE_URL }}
+        run: |
+          if [ -z "$CRON_SECRET" ] || [ -z "$BASE_URL" ]; then
+            echo "Missing CRON_SECRET or VERCEL_BASE_URL. See workflow header."
+            exit 1
+          fi
+          curl --fail-with-body --silent --show-error \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "${BASE_URL%/}/api/cron/refresh-odds"

@@ -1,12 +1,13 @@
-// Vercel Cron entrypoint for auto-refreshing odds.
+// External-scheduler entrypoint for auto-refreshing odds.
 //
-// Schedule (vercel.json): every 30 minutes.
-// Cadence policy: enforced inside the handler so we can keep a single cron
-// schedule and still pull less aggressively for matches that are days out.
+// Triggered by .github/workflows/refresh-odds.yml every 30 minutes (Vercel
+// Hobby crons are daily-only, so we use GitHub Actions instead).
 //
-// Auth: Vercel Cron sends a header `Authorization: Bearer <CRON_SECRET>` if
-// CRON_SECRET is set in the environment. We require it; reject everything
-// else with 401.
+// Cadence policy: enforced inside the handler so the same 30-min schedule can
+// pull less aggressively for matches that are days out.
+//
+// Auth: caller must send `Authorization: Bearer <CRON_SECRET>`. We reject
+// everything else with 401.
 import { NextResponse } from "next/server";
 import { refreshAllUpcoming } from "@/server/refresh-odds";
 
